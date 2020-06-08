@@ -91,7 +91,7 @@
               }
             }
           if (data['activetab'] !== null) { // 此时EditorsTab关闭的是当前标签页
-            if (data['activetab']['path'] === null) { // 此时关闭的是空文件
+            if (data['activetab']['path'] === null) { // 此时关闭的是unname
               for (let index = 0; index < _this.data[0]['children'].length; index++) {
                 if (_this.data[0]['children'][index]['label'] === data['activetab']['title']) {
                   _this.currentId = _this.data[0]['children'][index]['id']
@@ -116,6 +116,32 @@
             }
           }
         })
+        // 信号4，来自EditorsTab.vue的信号，目的是通过标签页切换文件菜单状态，信号名：selectedFile，接收参数：事件、{文件名，文件路径}
+        ipcRenderer.on('changeFileMenuFromTab', function (event, thedata) {
+          if (thedata['path'] == null) { // 切换的是unname标签页
+            for (let index = 0; index < _this.data[0]['children'].length; index++) {
+              if (_this.data[0]['children'][index]['label'] === thedata['title']) {
+                _this.currentId = _this.data[0]['children'][index]['id']
+                let __this = _this
+                _this.$nextTick(function () {
+                  __this.refRecursion(__this.currentId, 1)
+                })
+                break
+              }
+            }
+          } else {
+              for (let index = 0; index < _this.data[0]['children'].length; index++) {
+                if (_this.data[0]['children'][index]['path'] === thedata['path']) {
+                  _this.currentId = _this.data[0]['children'][index]['id']
+                  let __this = _this
+                  _this.$nextTick(function () {
+                    __this.refRecursion(__this.currentId, 1)
+                  })
+                  break
+              }
+            }
+          }
+        })
     },
     mounted() {
 
@@ -132,6 +158,7 @@
         }
       },
       handleNodeClick(data) {
+        ipcRenderer.send('change-tab-from-file-menu', data)
       }
     }
   };

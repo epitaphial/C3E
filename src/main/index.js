@@ -105,3 +105,13 @@ ipcMain.on('filemenu-new-file', e => {
 ipcMain.on('filemenu-remove-file', (e, args) => {
   e.sender.send('fileMenuRemoveFile', args)
 });
+
+// 通过标签页更新树形目录
+ipcMain.on('change-file-menu-from-tab', (e, args) => {
+  e.sender.send('changeFileMenuFromTab', args)
+});
+
+// 通过树形目录更新标签页
+ipcMain.on('change-tab-from-file-menu', (e, args) => {
+  e.sender.send('changeTabFromFileMenu', args)
+});

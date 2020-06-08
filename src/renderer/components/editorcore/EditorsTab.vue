@@ -1,6 +1,6 @@
 <template>
 <div style="padding: 0;margin-top: 25px;height: 100%">
-<el-tabs v-model="editableTabsValue" type="card" editable @edit="handleTabsEdit">
+<el-tabs v-model="editableTabsValue" type="card" editable @tab-click="handleTabsClick" @edit="handleTabsEdit">
   <el-tab-pane
     :key="item.name"
     v-for="(item, index) in editableTabs"
@@ -29,14 +29,13 @@
     },
     created() {
         let _this = this
-        // 信号1，来自menubar的打开文件信号，信号名：selectedFile，接收参数：事件、文件路径
+        // 信号1，来自MenuBar.vue的打开文件信号，信号名：selectedFile，接收参数：事件、文件路径
         ipcRenderer.on('selectedFile', function (event, path) {
             let strpath = String(path)
             // 判断文件是否已经在编辑器内
             let tabs = _this.editableTabs
-            let index = 0
             let editableName = null
-            for (index = 0; index < tabs.length; index++) {
+            for (let index = 0; index < tabs.length; index++) {
                 if (tabs[index].path === strpath) {
                     editableName = tabs[index].name
                     break
@@ -61,12 +60,41 @@
             }
         })
         // this.editor.dispose();
-        // 信号2，来自MenuBar的新建文件
+        // 信号2，来自MenuBar.vue的新建文件事件，信号名：newFile，接收参数：事件、null
         ipcRenderer.on('newFile', function (event, data) {
             _this.handleTabsEdit(null, 'add')
         })
+        // 信号3，来自MenuBar的新建文件，信号名：changeTabFromFileMenu，接收参数：事件、{文件名，文件路径}
+        ipcRenderer.on('changeTabFromFileMenu', function (event, thedata) {
+            let tabs = _this.editableTabs
+            if (thedata.path !== undefined) {
+                if (thedata.path === null) {
+                    for (let index = 0; index < tabs.length; index++) {
+                        if (tabs[index].title === thedata.label) {
+                            _this.editableTabsValue = tabs[index].name
+                            break
+                        }
+                    }
+                } else {
+                    for (let index = 0; index < tabs.length; index++) {
+                        if (tabs[index].path === thedata.path) {
+                            _this.editableTabsValue = tabs[index].name
+                            break
+                        }
+                    }
+                }
+            }
+        })
     },
     methods: {
+      handleTabsClick(thetab) { // 点击标签时
+          let tabs = this.editableTabs
+          tabs.forEach((tab, index) => {
+              if (tab.name === thetab['name']) {
+                  ipcRenderer.send('change-file-menu-from-tab', {path: tab.path, title: tab.title})
+                }
+            });
+      },
       handleTabsEdit(targetName, action) {
         if (action === 'add') {
           let newTabName = ++this.tabIndex + ''
