@@ -1,19 +1,19 @@
 <template>
     <el-header height="30px" class="top-nav">
           <div class="logo">
-<i class="el-icon-edit"></i>
+<i class="el-icon-edit">乾天</i>
       </div>
-      <div class="search">
+      <div class="mainmenu">
 <el-dropdown>
   <span class="el-dropdown-link">
     文件
   </span>
   <el-dropdown-menu slot="dropdown">
-    <el-dropdown-item>黄金糕</el-dropdown-item>
-    <el-dropdown-item>狮子头</el-dropdown-item>
-    <el-dropdown-item>螺蛳粉</el-dropdown-item>
-    <el-dropdown-item disabled>双皮奶</el-dropdown-item>
-    <el-dropdown-item divided>蚵仔煎</el-dropdown-item>
+    <el-dropdown-item @click.native="newFile">新建文件</el-dropdown-item>
+    <el-dropdown-item @click.native="openFileDialog" >打开文件</el-dropdown-item>
+    <el-dropdown-item>新建窗口</el-dropdown-item>
+    <el-dropdown-item disabled>关闭</el-dropdown-item>
+    <el-dropdown-item @click.native="closeWindow" divided>退出</el-dropdown-item>
   </el-dropdown-menu>
 </el-dropdown>
 <el-dropdown>
@@ -67,35 +67,45 @@
 
 <script>
   import $ from 'jquery'
-  var ipcRenderer = require('electron').ipcRenderer
-  var isBig = true // 窗口放大还原标示
+  // import bus from '../../common/bus.js'
+  let ipcRenderer = require('electron').ipcRenderer
+  let isBig = true // 窗口放大还原标示
 
   export default {
-    name: 'menubar',
+    name: 'menu-bar',
     components: {},
     methods: {
       open (link) {
         this.$electron.shell.openExternal(link)
+      },
+      openFileDialog () {
+        ipcRenderer.send('open-file-dialog')
+      },
+      closeWindow () {
+        ipcRenderer.send('close-window')
+      },
+      newFile () {
+        ipcRenderer.send('new-file')
       }
     },
     mounted () {
       // 关闭窗口
       $(document).on('click', '.close', function () {
         console.log(1)
-        ipcRenderer.send('close')
+        ipcRenderer.send('close-window')
       })
       // 最大化
       $(document).on('click', '.max', function () {
         if (isBig) {
-          ipcRenderer.send('max')
+          ipcRenderer.send('max-window')
         } else {
-          ipcRenderer.send('max')
+          ipcRenderer.send('max-window')
         }
         isBig = !isBig
       })
       // 最小化
       $(document).on('click', '.min', function () {
-        ipcRenderer.send('min')
+        ipcRenderer.send('min-window')
       })
     }
   }
@@ -106,6 +116,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    user-select:none;
   }
 
 
@@ -141,17 +152,19 @@
       }
     }
   }
-  .search{
+  .mainmenu{
     -webkit-app-region:no-drag;
+    user-select:none;
     position: relative;
     float: left;
     padding: 5px 0 0 20px;
 
     .el-dropdown-link {
-    cursor: pointer;
+      cursor: pointer;
     }
     .el-dropdown {
       padding-left: 20px;
     }
   }
+
 </style>

@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 
 /**
  * Set `__static` path to static files in production
@@ -67,12 +67,41 @@ app.on('ready', () => {
 })
  */
 
-ipcMain.on('min', e => mainWindow.minimize());
-ipcMain.on('max', e => {
+// 用于接受最大化最小化关闭窗口信号
+ipcMain.on('min-window', e => mainWindow.minimize());
+ipcMain.on('max-window', e => {
   if (mainWindow.isMaximized()) {
     mainWindow.unmaximize()
   } else {
     mainWindow.maximize()
   }
 });
-ipcMain.on('close', e => mainWindow.close());
+ipcMain.on('close-window', e => mainWindow.close());
+
+// 文件操作信号
+// 打开文件
+ipcMain.on('open-file-dialog', e => {
+  dialog.showOpenDialog({
+    properties: ['openFile']
+  }, function (files) {
+    if (files) {
+      e.sender.send('selectedFile', files)
+    }
+  })
+});
+
+// 新建文件
+ipcMain.on('new-file', e => {
+  e.sender.send('newFile', null)
+});
+
+// 更新树形目录相关
+// 树形目录增加
+ipcMain.on('filemenu-new-file', e => {
+  e.sender.send('fileMenuNewFile', null)
+});
+
+// 树形目录移除
+ipcMain.on('filemenu-remove-file', (e, args) => {
+  e.sender.send('fileMenuRemoveFile', args)
+});

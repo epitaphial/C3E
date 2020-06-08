@@ -2,10 +2,11 @@
 <el-container id="wrapper">
   <MenuBar></MenuBar>
   <el-container>
-    <el-aside width="300px">文件树视图</el-aside>
-    <el-container>
-      <el-main>编辑器视图</el-main>
-      <el-footer height="200px">终端视图</el-footer>
+    <FileMenuBar></FileMenuBar>
+    <hr>
+    <el-container width="80%">
+      <EditorsTab height="80%"></EditorsTab>
+      <el-footer height="20%">终端视图</el-footer>
     </el-container>
   </el-container>
 </el-container>
@@ -13,12 +14,17 @@
 
 <script>
   import MenuBar from './menubar/MenuBar'
+  import EditorsTab from './editorcore/EditorsTab';
+  import FileMenuBar from './filemenubar/FileMenuBar';
   export default {
     name: 'index-page',
-    components: {MenuBar},
+    components: {MenuBar, EditorsTab, FileMenuBar},
     methods: {
       open (link) {
         this.$electron.shell.openExternal(link)
+      },
+      getFilePath (data) {
+        console.log(data)
       }
     }
   }
@@ -54,10 +60,4 @@
     line-height: 200px;
   }
   
-  .el-main {
-    background-color: #E9EEF3;
-    color: #333;
-    text-align: center;
-    line-height: 100px;
-  }
 </style>
