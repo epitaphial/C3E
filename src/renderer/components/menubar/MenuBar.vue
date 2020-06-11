@@ -88,7 +88,7 @@
         ipcRenderer.send('new-file')
       },
       saveFile () {
-        // ipcRenderer.send('save-file') // 有待商榷，不应该直接发给主进程打开文件框，应判断path是否存在
+        ipcRenderer.send('save-file-by-button')
       }
     },
     mounted () {

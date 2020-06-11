@@ -121,7 +121,7 @@ ipcMain.on('editor-content-has-changed', (e, args) => {
   e.sender.send('editorContentHasChanged', args)
 });
 
-// 检测编辑器或MenuBar.vue发来的保存文件事件
+// 检测编辑器发来的保存文件事件
 ipcMain.on('save-file', (e, args) => {
     dialog.showSaveDialog({
         title: '另存为',
@@ -132,6 +132,11 @@ ipcMain.on('save-file', (e, args) => {
       e.sender.send('saveFile', {path: file, thetitle: args})
     })
 })
+
+// 检测MenuBar.vue发来的保存文件事件
+ipcMain.on('save-file-by-button', (e, args) => {
+  e.sender.send('saveFileByButton', args)
+});
 
 // 检测编辑器发来的事件，代表此时保存的是unname文件，提示EditorsTab和FileMenuBar更新内容并取消黑点
 ipcMain.on('unnamed-file-has-saved', (e, args) => {
