@@ -7,14 +7,16 @@
 </template>
 
 <script>
+// 节点指的是菜单栏中的每一个叶子菜单
+// 对象格式：{id: 节点编号, label: 显示的文件名, file: 文件名, path: 文件路径（unname文件默认为null）}
   let ipcRenderer = require('electron').ipcRenderer
   export default {
     data() {
       return {
-        defaultExp: [],
-        currentId: 0,
-        unnameMount: 0,
-        fileMount: 0,
+        defaultExp: [], // 默认展开的节点们
+        currentId: 0, // 当前高亮的节点
+        unnameMount: 0, // unname文件总数（包含已删除的）
+        fileMount: 0, // 当前文件总数
         data: [{
           label: '编辑区文件',
           children: []

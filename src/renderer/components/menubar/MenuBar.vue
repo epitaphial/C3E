@@ -11,7 +11,7 @@
   <el-dropdown-menu slot="dropdown">
     <el-dropdown-item @click.native="newFile">新建文件</el-dropdown-item>
     <el-dropdown-item @click.native="openFileDialog" >打开文件</el-dropdown-item>
-    <el-dropdown-item>新建窗口</el-dropdown-item>
+    <el-dropdown-item @click.native="saveFile">保存</el-dropdown-item>
     <el-dropdown-item disabled>关闭</el-dropdown-item>
     <el-dropdown-item @click.native="closeWindow" divided>退出</el-dropdown-item>
   </el-dropdown-menu>
@@ -86,6 +86,9 @@
       },
       newFile () {
         ipcRenderer.send('new-file')
+      },
+      saveFile () {
+        // ipcRenderer.send('save-file') // 有待商榷，不应该直接发给主进程打开文件框，应判断path是否存在
       }
     },
     mounted () {

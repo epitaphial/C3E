@@ -7,24 +7,25 @@
     :label="item.title"
     :name="item.name"
   >
-<MonacoEditor style="padding: 0;margin: 0;height: 600px" :filepath = "item.path" :id="item.title"></MonacoEditor>
-  </el-tab-pane>
+<MonacoEditor style="padding: 0;margin: 0;height: 600px" :filepath = "item.path" :title="item.title" :id="item.title"></MonacoEditor>
+  </el-tab-pane> 
 </el-tabs>
 </div>
 </template>
 <script>
   import MonacoEditor from './MonacoEditor';
-  // import bus from '../../common/bus.js'
   let ipcRenderer = require('electron').ipcRenderer
   export default {
     name: 'editors-tab',
     components: {MonacoEditor},
     data() {
       return {
-        editableTabsValue: '0',
-        editableTabs: [],
-        tabIndex: 0,
-        unnameMount: 0
+        editableTabsValue: '0', // 当前选中的tab的name
+        editableTabs: [], // 所有的tab对象数组，数组成员对象形式：{title: filename,name: newTabName,path: strpath}，说明：title（显示在tab上的内容），name（一个整数，标识tab的id），path（tab所属的文件的路径，如果是unname文件则为null）
+        tabIndex: 0, // tab总数
+        unnameMount: 0, // unname文件总数
+        editedMark: ' ●', // 如果被修改，加上此符号
+        originName: {} // 用于存储tab原来的名字，区别修改后加上‘●’的名字
       }
     },
     created() {
@@ -55,6 +56,7 @@
                     path: strpath
                     });
                 _this.editableTabsValue = newTabName
+                _this.originName[newTabName] = filename
             } else { // 说明已经存在该文件
                 _this.editableTabsValue = editableName
             }
@@ -64,7 +66,7 @@
         ipcRenderer.on('newFile', function (event, data) {
             _this.handleTabsEdit(null, 'add')
         })
-        // 信号3，来自MenuBar的新建文件，信号名：changeTabFromFileMenu，接收参数：事件、{文件名，文件路径}
+        // 信号3，来自FileMenuBar.vue的通过菜单树切换tab的信号，信号名：changeTabFromFileMenu，接收参数：事件、{文件名，文件路径}
         ipcRenderer.on('changeTabFromFileMenu', function (event, thedata) {
             let tabs = _this.editableTabs
             if (thedata.path !== undefined) {
@@ -85,6 +87,27 @@
                 }
             }
         })
+        // 信号4，来自MonacoEditor.vue的编辑器区域被修改事件，信号名：editorContentHasChanged，接收参数：事件、{文件名，文件路径}
+        ipcRenderer.on('editorContentHasChanged', function (event, thedata) {
+            let tabs = _this.editableTabs
+            if (thedata.path !== undefined) {
+                if (thedata.path === null) { // 变化的是unname文件
+                    for (let index = 0; index < tabs.length; index++) {
+                        if (tabs[index].title === thedata.title) {
+                            _this.editableTabs[index].title = _this.originName[tabs[index].name] + _this.editedMark
+                            break
+                        }
+                    }
+                } else {
+                    for (let index = 0; index < tabs.length; index++) {
+                        if (tabs[index].path === thedata.path) {
+                            _this.editableTabs[index].title = _this.originName[tabs[index].name] + _this.editedMark
+                            break
+                        }
+                    }
+                }
+            }
+        })
     },
     methods: {
       handleTabsClick(thetab) { // 点击标签时
@@ -98,14 +121,16 @@
       handleTabsEdit(targetName, action) {
         if (action === 'add') {
           let newTabName = ++this.tabIndex + ''
+          let theTitle = 'unname' + this.unnameMount++
           this.editableTabs.push({
-            title: 'unname' + this.unnameMount++,
+            title: theTitle,
             name: newTabName,
             path: null
           });
           this.editableTabsValue = newTabName
           // 发送信号，通知FileMenuBar更新树形目录
           ipcRenderer.send('filemenu-new-file')
+          this.originName[newTabName] = theTitle
         }
         if (action === 'remove') {
           let tabs = this.editableTabs

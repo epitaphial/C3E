@@ -1,5 +1,5 @@
 <template>
-  <div ref="main" style="width: 100%;"></div>
+  <div ref="main" style="width: 100%"></div>
 </template>
 
 <script>
@@ -9,14 +9,16 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
 import 'monaco-editor/esm/vs/editor/contrib/find/findController.js';
 
+let ipcRenderer = require('electron').ipcRenderer
 export default {
   name: 'monaco-editor',
   props: {
     filepath: String,
-    required: false
+    title: String
     },
   data () {
     return {
+      path: this.filepath,
       editor: null,
       curTheme: 'vs-light',
       value: `console.log("hello,world");`
@@ -24,27 +26,41 @@ export default {
   },
   methods: {},
   created () {
-
+    let fs = require('fs')
+    // 信号1，来自MonacoEditor.vue的保存信号，信号名：saveFile，接收参数：事件、文件路径
+    ipcRenderer.on('saveFile', (event, thepath) => {
+        this.value = this.editor.getValue()
+        fs.writeFileSync(thepath, this.value, 'utf8') // 修改后的内容写入文件
+        this.path = thepath
+        ipcRenderer.send('unnamed-file-has-saved', {path: thepath, title: this.title})
+      })
   },
   mounted () {
+    // 每调用一次create，monaco.editor model 数量+1
     let fs = require('fs')
-    let _this = this
-    if (this.filepath === null) { // 新建标签页的情况
+    if (this.path === null) { // 新建标签页的情况
           this.editor = monaco.editor.create(
-            this.$refs.main, {theme: this.curTheme, automaticLayout: true, language: 'javascript', value: this.value, fontSize: 20}
+            this.$refs['main'], {theme: this.curTheme, automaticLayout: false, language: 'javascript', value: this.value, fontSize: 20}
           )
     } else {
-      fs.readFile(this.filepath, 'utf8', function(err, data) { // 打开文件的情况
-        if (err === null) {
-          _this.value = data
-          _this.editor = monaco.editor.create(
-            _this.$refs.main, {theme: _this.curTheme, automaticLayout: true, language: 'javascript', value: _this.value, fontSize: 20}
-          )
-          } else {
-            console.log(err);
-          }
-        });
+      let data = fs.readFileSync(this.path, 'utf8')
+      this.value = data
+      this.editor = monaco.editor.create(
+        this.$refs['main'], {theme: this.curTheme, automaticLayout: false, language: 'javascript', value: this.value, fontSize: 20}
+        )
     }
+    this.editor.onDidChangeModelContent(() => { // 当编辑器内容变了
+      ipcRenderer.send('editor-content-has-changed', {path: this.path, title: this.title})
+    })
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {
+      if (this.path == null) {
+        this.value = this.editor.getValue()
+        ipcRenderer.send('save-file')
+      } else {
+        this.value = this.editor.getValue()
+        fs.writeFileSync(this.path, this.value, 'utf8') // 修改后的内容写入文件
+      }
+      })
   }
 }
 </script>

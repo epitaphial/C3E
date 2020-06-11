@@ -83,7 +83,7 @@ ipcMain.on('close-window', e => mainWindow.close());
 ipcMain.on('open-file-dialog', e => {
   dialog.showOpenDialog({
     properties: ['openFile']
-  }, function (files) {
+  }, (files) => {
     if (files) {
       e.sender.send('selectedFile', files)
     }
@@ -114,4 +114,26 @@ ipcMain.on('change-file-menu-from-tab', (e, args) => {
 // 通过树形目录更新标签页
 ipcMain.on('change-tab-from-file-menu', (e, args) => {
   e.sender.send('changeTabFromFileMenu', args)
+});
+
+// 检测编辑器变化，修改标签页和目录树内容
+ipcMain.on('editor-content-has-changed', (e, args) => {
+  e.sender.send('editorContentHasChanged', args)
+});
+
+// 检测编辑器或MenuBar.vue发来的保存文件事件
+ipcMain.on('save-file', e => {
+    dialog.showSaveDialog({
+        title: '另存为',
+        filters: [
+            {name: 'All', extensions: ['*']}
+]
+    }, file => {
+      e.sender.send('saveFile', file)
+    })
+})
+
+// 检测编辑器发来的事件，代表此时保存的是unname文件，提示EditorsTab和FileMenuBar更新内容并取消黑点
+ipcMain.on('unnamed-file-has-saved', (e, args) => {
+  e.sender.send('unnamedFileHasSaved', args)
 });
