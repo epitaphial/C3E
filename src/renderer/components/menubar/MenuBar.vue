@@ -12,7 +12,7 @@
     <el-dropdown-item @click.native="newFile">新建文件</el-dropdown-item>
     <el-dropdown-item @click.native="newWindow" disabled>新建窗口</el-dropdown-item>
     <el-dropdown-item @click.native="openFileDialog" divided>打开文件</el-dropdown-item>
-    <el-dropdown-item @click.native="openDirDialog" disabled>打开文件夹</el-dropdown-item>
+    <el-dropdown-item @click.native="openDirDialog">打开文件夹</el-dropdown-item>
     <el-dropdown-item @click.native="saveFile" divided>保存</el-dropdown-item>
     <el-dropdown-item @click.native="saveFileToOther" disabled>另存为</el-dropdown-item>
     <el-dropdown-item @click.native="closeFile" divided>关闭文件</el-dropdown-item>
@@ -82,6 +82,9 @@
       },
       openFileDialog () {
         ipcRenderer.send('open-file-dialog')
+      },
+      openDirDialog () {
+        ipcRenderer.send('open-dir-dialog')
       },
       closeWindow () {
         ipcRenderer.send('close-window')

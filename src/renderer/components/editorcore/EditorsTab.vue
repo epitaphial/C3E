@@ -1,5 +1,5 @@
 <template>
-<div style="padding: 0;margin-top: 25px;height: 100%">
+<div style="padding: 0;margin-top: 25px;height: 100%" id="edtab">
 <el-tabs v-model="editableTabsValue" type="card" editable @tab-click="handleTabsClick" @edit="handleTabsEdit">
   <el-tab-pane
     :key="item.name"

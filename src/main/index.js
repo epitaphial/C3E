@@ -90,6 +90,17 @@ ipcMain.on('open-file-dialog', e => {
   })
 });
 
+// 打开文件夹
+ipcMain.on('open-dir-dialog', e => {
+  dialog.showOpenDialog({
+    properties: ['openDirectory']
+  }, (dir) => {
+    if (dir) {
+      e.sender.send('selectedDir', dir)
+    }
+  })
+});
+
 // 新建文件
 ipcMain.on('new-file', e => {
   e.sender.send('newFile', null)

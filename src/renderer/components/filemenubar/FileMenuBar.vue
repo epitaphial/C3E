@@ -160,6 +160,28 @@
             }
           }
         })
+        // 信号6，来自MenuBar.vue的打开文件夹事件，信号名：selectedDir，接收参数：事件、目录路径
+        ipcRenderer.on('selectedDir', function (event, dirpath) {
+          let walk = require('walk')
+          let files = []
+          let dirs = []
+          getFileList(String(dirpath))
+          function getFileList(path) {
+            let walker = walk.walk(path, { followLinks: false });
+            walker.on('file', function(roots, stat, next) {
+              files.push(roots + '/' + stat.name)
+              next();
+            });
+            walker.on('directory', function(roots, stat, next) {
+              dirs.push(roots + '/' + stat.name)
+              next();
+            });
+            walker.on('end', function() {
+              // console.log('files ' + files)
+              // console.log('dirs ' + dirs)
+            });
+          }
+        })
     },
     mounted() {
 
