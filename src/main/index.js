@@ -134,8 +134,13 @@ ipcMain.on('save-file', (e, args) => {
 })
 
 // 检测MenuBar.vue发来的保存文件事件
-ipcMain.on('save-file-by-button', (e, args) => {
-  e.sender.send('saveFileByButton', args)
+ipcMain.on('save-file-by-button', e => {
+  e.sender.send('saveFileByButton')
+});
+
+// 检测MenuBar.vue发到EditorsTab，再发到MonacoEditor
+ipcMain.on('save-file-by-button-from-tab', (e, args) => {
+  e.sender.send('saveFileByButtonFromTab', args)
 });
 
 // 检测编辑器发来的事件，代表此时保存的是unname文件，提示EditorsTab和FileMenuBar更新内容并取消黑点
@@ -146,4 +151,9 @@ ipcMain.on('unnamed-file-has-saved', (e, args) => {
 // 检测编辑器发来的事件，代表此时保存的是非unname文件，提示EditorsTab和FileMenuBar取消黑点
 ipcMain.on('not-first-time-save-file', (e, args) => {
   e.sender.send('notFirstTimeSaveFile', args)
+});
+
+// 检测MenuBar.vue发来的事件，此时需要关闭当前标签页文件
+ipcMain.on('close-file-by-button', e => {
+  e.sender.send('closeFileByButton')
 });

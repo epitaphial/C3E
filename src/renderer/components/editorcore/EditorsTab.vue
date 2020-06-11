@@ -14,13 +14,14 @@
 </template>
 <script>
   import MonacoEditor from './MonacoEditor';
+  import { MessageBox } from 'element-ui';
   let ipcRenderer = require('electron').ipcRenderer
   export default {
     name: 'editors-tab',
     components: {MonacoEditor},
     data() {
       return {
-        editableTabsValue: '0', // 当前选中的tab的name
+        editableTabsValue: null, // 当前选中的tab的name
         editableTabs: [], // 所有的tab对象数组，数组成员对象形式：{title: filename,name: newTabName,path: strpath}，说明：title（显示在tab上的内容），name（一个整数，标识tab的id），path（tab所属的文件的路径，如果是unname文件则为null）
         tabIndex: 0, // tab总数
         unnameMount: 0, // unname文件总数
@@ -135,8 +136,49 @@
                 }
             }
         })
+        // 信号7，来自MenuBar.vue的保存按钮点击事件，信号名：saveFileByButton，接收参数：事件
+        ipcRenderer.on('saveFileByButton', function (event) {
+            let tabs = _this.editableTabs
+            for (let index = 0; index < tabs.length; index++) {
+                if (tabs[index].name === _this.editableTabsValue) {
+                    ipcRenderer.send('save-file-by-button-from-tab', {path: tabs[index].path, title: _this.originName[tabs[index].name]})
+                    break
+                }
+            }
+        })
+        // 信号8，来自MenuBar.vue的关闭按钮点击事件，信号名：closeFileByButton，接收参数：事件
+        ipcRenderer.on('closeFileByButton', function (event) {
+            _this.handleTabsEdit(_this.editableTabsValue, 'remove')
+        })
     },
     methods: {
+      closeTabByName(_this, targetName) {
+          let tabs = _this.editableTabs
+          let activeName = _this.editableTabsValue // 当前选中的tab
+          let ifCloseCurrTab = (activeName === targetName) // 关闭的是否是当前tab
+          let sendRemoveInfo = {path: null, name: null, activetab: null}
+          let activeTabAfterClose = null // 关闭标签页之后选中的tab
+          tabs.forEach((tab, index) => {
+              if (tab.name === targetName) {
+                  // 发送信号，通知FileMenuBar删除目录中相应项
+                  sendRemoveInfo['path'] = tab.path
+                  sendRemoveInfo['name'] = _this.originName[tab.name]
+                  let nextTab = tabs[index + 1] || tabs[index - 1];
+                  if (nextTab) {
+                    activeName = nextTab.name;
+                    activeTabAfterClose = {title: nextTab.title, path: nextTab.path}
+                  }
+                }
+            });
+          _this.editableTabs = tabs.filter(tab => tab.name !== targetName)
+          if (ifCloseCurrTab) {
+              _this.editableTabsValue = activeName
+          } else {
+              activeTabAfterClose = null
+          }
+          sendRemoveInfo['activetab'] = activeTabAfterClose
+          ipcRenderer.send('filemenu-remove-file', sendRemoveInfo)
+      },
       handleTabsClick(thetab) { // 点击标签时
           let tabs = this.editableTabs
           tabs.forEach((tab, index) => {
@@ -160,31 +202,40 @@
           this.originName[newTabName] = theTitle
         }
         if (action === 'remove') {
-          let tabs = this.editableTabs
-          let activeName = this.editableTabsValue
-          let ifCloseCurrTab = (activeName === targetName)
-          let sendRemoveInfo = {path: null, name: null, activetab: null}
-          let activeTabAfterClose = null
-          tabs.forEach((tab, index) => {
-              if (tab.name === targetName) {
-                  // 发送信号，通知FileMenuBar删除目录中相应项
-                  sendRemoveInfo['path'] = tab.path
-                  sendRemoveInfo['name'] = tab.title
-                  let nextTab = tabs[index + 1] || tabs[index - 1];
-                  if (nextTab) {
-                    activeName = nextTab.name;
-                    activeTabAfterClose = {title: nextTab.title, path: nextTab.path}
+            let tabs = this.editableTabs
+            let ifModified = false
+            let tabName = null
+            let tabPath = null
+            tabs.forEach((tab, index) => {
+              if (tab.name === this.editableTabsValue) {
+                  if (tab.title !== this.originName[this.editableTabsValue]) {
+                      ifModified = true
+                      tabName = this.originName[this.editableTabsValue]
+                      tabPath = tab.path
                   }
-                }
-            });
-          this.editableTabs = tabs.filter(tab => tab.name !== targetName)
-          if (ifCloseCurrTab) {
-              this.editableTabsValue = activeName
-          } else {
-              activeTabAfterClose = null
-          }
-          sendRemoveInfo['activetab'] = activeTabAfterClose
-          ipcRenderer.send('filemenu-remove-file', sendRemoveInfo)
+              }
+            })
+            if (ifModified) {
+                MessageBox.confirm('', '', {
+                    title: '是否要保存您的更改',
+                    message: `如果不保存，您对 ${tabName} 的更改将会丢失`,
+                    type: 'warning',
+                    distinguishCancelAndClose: true,
+                    confirmButtonText: '保存',
+                    cancelButtonText: '不保存'
+                    })
+                    .then(() => { // 保存并退出
+                        ipcRenderer.send('save-file-by-button-from-tab', {path: tabPath, title: tabName})
+                        this.$options.methods.closeTabByName(this, targetName)
+                    })
+                    .catch(action => {
+                        if (action === 'cancel') { // 放弃保存
+                            this.$options.methods.closeTabByName(this, targetName)
+                        }
+                    });
+            } else { // 不保存就退出
+                this.$options.methods.closeTabByName(this, targetName)
+            }
         }
       }
     }

@@ -10,10 +10,13 @@
   </span>
   <el-dropdown-menu slot="dropdown">
     <el-dropdown-item @click.native="newFile">新建文件</el-dropdown-item>
-    <el-dropdown-item @click.native="openFileDialog" >打开文件</el-dropdown-item>
-    <el-dropdown-item @click.native="saveFile">保存</el-dropdown-item>
-    <el-dropdown-item disabled>关闭</el-dropdown-item>
-    <el-dropdown-item @click.native="closeWindow" divided>退出</el-dropdown-item>
+    <el-dropdown-item @click.native="newWindow" disabled>新建窗口</el-dropdown-item>
+    <el-dropdown-item @click.native="openFileDialog" divided>打开文件</el-dropdown-item>
+    <el-dropdown-item @click.native="openDirDialog" disabled>打开文件夹</el-dropdown-item>
+    <el-dropdown-item @click.native="saveFile" divided>保存</el-dropdown-item>
+    <el-dropdown-item @click.native="saveFileToOther" disabled>另存为</el-dropdown-item>
+    <el-dropdown-item @click.native="closeFile" divided>关闭文件</el-dropdown-item>
+    <el-dropdown-item @click.native="closeWindow">退出</el-dropdown-item>
   </el-dropdown-menu>
 </el-dropdown>
 <el-dropdown>
@@ -67,7 +70,6 @@
 
 <script>
   import $ from 'jquery'
-  // import bus from '../../common/bus.js'
   let ipcRenderer = require('electron').ipcRenderer
   let isBig = true // 窗口放大还原标示
 
@@ -89,6 +91,9 @@
       },
       saveFile () {
         ipcRenderer.send('save-file-by-button')
+      },
+      closeFile () {
+        ipcRenderer.send('close-file-by-button')
       }
     },
     mounted () {

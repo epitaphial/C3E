@@ -63,7 +63,20 @@ export default {
         fs.writeFileSync(this.path, this.value, 'utf8') // 修改后的内容写入文件
         ipcRenderer.send('not-first-time-save-file', this.path)
       }
-      })
+    })
+    // 信号2，来自EditorsTab.vue的保存按钮点击事件，信号名：saveFileByButtonFromTab，接收参数：事件,{路径，文件名}
+        ipcRenderer.on('saveFileByButtonFromTab', (event, data) => {
+          if (data.path === this.path && data.title === this.title) {
+            if (data.path === null) {
+              this.value = this.editor.getValue()
+              ipcRenderer.send('save-file', this.title)
+            } else {
+              this.value = this.editor.getValue()
+              fs.writeFileSync(this.path, this.value, 'utf8') // 修改后的内容写入文件
+              ipcRenderer.send('not-first-time-save-file', this.path)
+            }
+          }
+        })
   }
 }
 </script>
