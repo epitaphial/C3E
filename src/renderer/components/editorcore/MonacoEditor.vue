@@ -27,12 +27,14 @@ export default {
   methods: {},
   created () {
     let fs = require('fs')
-    // 信号1，来自MonacoEditor.vue的保存信号，信号名：saveFile，接收参数：事件、文件路径
-    ipcRenderer.on('saveFile', (event, thepath) => {
+    // 信号1，来自MonacoEditor.vue的保存信号，信号名：saveFile，接收参数：事件、{文件路径,文件名}
+    ipcRenderer.on('saveFile', (event, data) => {
         this.value = this.editor.getValue()
-        fs.writeFileSync(thepath, this.value, 'utf8') // 修改后的内容写入文件
-        this.path = thepath
-        ipcRenderer.send('unnamed-file-has-saved', {path: thepath, title: this.title})
+        if (data.path !== undefined && data.thetitle === this.title) {
+          fs.writeFileSync(data.path, this.value, 'utf8') // 修改后的内容写入文件
+          this.path = data.path
+          ipcRenderer.send('unnamed-file-has-saved', {path: data.path, title: this.title})
+        }
       })
   },
   mounted () {
@@ -53,12 +55,13 @@ export default {
       ipcRenderer.send('editor-content-has-changed', {path: this.path, title: this.title})
     })
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {
-      if (this.path == null) {
+      if (this.path == null) { // 是unname文件的情况
         this.value = this.editor.getValue()
-        ipcRenderer.send('save-file')
+        ipcRenderer.send('save-file', this.title)
       } else {
         this.value = this.editor.getValue()
         fs.writeFileSync(this.path, this.value, 'utf8') // 修改后的内容写入文件
+        ipcRenderer.send('not-first-time-save-file', this.path)
       }
       })
   }

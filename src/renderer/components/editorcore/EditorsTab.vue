@@ -7,7 +7,7 @@
     :label="item.title"
     :name="item.name"
   >
-<MonacoEditor style="padding: 0;margin: 0;height: 600px" :filepath = "item.path" :title="item.title" :id="item.title"></MonacoEditor>
+<MonacoEditor style="padding: 0;margin: 0;height: 600px" :filepath = "item.path" :title="originName[item.name]"></MonacoEditor>
   </el-tab-pane> 
 </el-tabs>
 </div>
@@ -25,7 +25,7 @@
         tabIndex: 0, // tab总数
         unnameMount: 0, // unname文件总数
         editedMark: ' ●', // 如果被修改，加上此符号
-        originName: {} // 用于存储tab原来的名字，区别修改后加上‘●’的名字
+        originName: {} // 用于存储tab原来的名字，键为name，区别修改后加上‘●’的名字
       }
     },
     created() {
@@ -105,6 +105,33 @@
                             break
                         }
                     }
+                }
+            }
+        })
+        // 信号5，来自MonacoEditor.vue的“unname文件被第一次保存”事件，信号名：unnamedFileHasSaved，接收参数：事件、{文件名，文件路径}
+        ipcRenderer.on('unnamedFileHasSaved', function (event, thedata) {
+            let tabs = _this.editableTabs
+            for (let index = 0; index < tabs.length; index++) {
+                if (_this.originName[tabs[index].name] === thedata.title) {
+                    _this.editableTabs[index].path = thedata.path
+                    let pos = thedata.path.lastIndexOf('/')
+                    if (pos === -1) {
+                        pos = thedata.path.lastIndexOf('\\')
+                    }
+                    let filename = thedata.path.substring(pos + 1)
+                    _this.editableTabs[index].title = filename
+                    _this.originName[tabs[index].name] = filename
+                    break
+                }
+            }
+        })
+        // 信号6，来自MonacoEditor.vue的“非unname文件被保存”事件，信号名：unnamedFileHasSaved，接收参数：事件、文件路径
+        ipcRenderer.on('notFirstTimeSaveFile', function (event, thepath) {
+            let tabs = _this.editableTabs
+            for (let index = 0; index < tabs.length; index++) {
+                if (tabs[index].path === thepath) {
+                    _this.editableTabs[index].title = _this.originName[tabs[index].name]
+                    break
                 }
             }
         })

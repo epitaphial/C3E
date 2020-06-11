@@ -144,6 +144,22 @@
             }
           }
         })
+        // 信号5，来自MonacoEditor.vue的“unname文件被第一次保存”事件，信号名：unnamedFileHasSaved，接收参数：事件、{文件名，文件路径}
+        ipcRenderer.on('unnamedFileHasSaved', function (event, thedata) {
+          for (let index = 0; index < _this.data[0]['children'].length; index++) {
+            if (_this.data[0]['children'][index]['label'] === thedata.title) {
+              _this.data[0]['children'][index]['path'] = thedata.path;
+              let pos = thedata.path.lastIndexOf('/')
+              if (pos === -1) {
+                pos = thedata.path.lastIndexOf('\\')
+              }
+              let filename = thedata.path.substring(pos + 1)
+              _this.data[0]['children'][index]['file'] = filename
+              _this.data[0]['children'][index]['label'] = filename + `(${thedata.path})`
+              break
+            }
+          }
+        })
     },
     mounted() {
 
