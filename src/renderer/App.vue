@@ -5,11 +5,11 @@
 </template>
 
 <script>
-  export default {
-    name: 'cheetah_editor'
-  }
+export default {
+  name: 'cheetah_editor'
+}
 </script>
 
 <style>
-  /* CSS */
+/* CSS */
 </style>

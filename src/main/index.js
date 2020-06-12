@@ -83,11 +83,16 @@ ipcMain.on('close-window', e => mainWindow.close());
 ipcMain.on('open-file-dialog', e => {
   dialog.showOpenDialog({
     properties: ['openFile']
-  }, (files) => {
-    if (files) {
-      e.sender.send('selectedFile', files)
+  }, (file) => {
+    if (file) {
+      e.sender.send('selectedFile', file)
     }
   })
+});
+
+// 通过目录树的文件打开文件
+ipcMain.on('open-file-by-dir-tree', (e, filepath) => {
+  e.sender.send('selectedFile', filepath)
 });
 
 // 打开文件夹
@@ -134,14 +139,14 @@ ipcMain.on('editor-content-has-changed', (e, args) => {
 
 // 检测编辑器发来的保存文件事件
 ipcMain.on('save-file', (e, args) => {
-    dialog.showSaveDialog({
-        title: '另存为',
-        filters: [
-            {name: 'All', extensions: ['*']}
-]
-    }, file => {
-      e.sender.send('saveFile', {path: file, thetitle: args})
-    })
+  dialog.showSaveDialog({
+    title: '另存为',
+    filters: [
+      { name: 'All', extensions: ['*'] }
+    ]
+  }, file => {
+    e.sender.send('saveFile', { path: file, thetitle: args })
+  })
 })
 
 // 检测MenuBar.vue发来的保存文件事件
