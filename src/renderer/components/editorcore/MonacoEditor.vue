@@ -4,7 +4,6 @@
 
 <script>
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.main.js'
-import 'monaco-editor/esm/vs/basic-languages/monaco.contribution.js'
 import { getLanguageId, getFileNameFromPath } from '../../common/tools'
 
 let ipcRenderer = require('electron').ipcRenderer

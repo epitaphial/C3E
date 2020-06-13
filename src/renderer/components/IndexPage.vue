@@ -7,7 +7,7 @@
       <el-aside width="200px">
         <FileMenuBar></FileMenuBar>
       </el-aside>
-      <hr>
+      <hr />
       <el-container>
         <el-main>
           <EditorsTab height="80%"></EditorsTab>
@@ -58,10 +58,14 @@ div {
   color: #333;
   text-align: center;
   line-height: 40px;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
 }
 
 .el-aside {
   text-align: center;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
 }
 .el-main {
   margin: 0%;

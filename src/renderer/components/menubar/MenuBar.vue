@@ -114,7 +114,7 @@ export default {
     })
   }
 }
-</script >
+</script>
 
 <style lang="less">
 * {
@@ -133,8 +133,12 @@ export default {
   left: 0;
   right: 0;
   z-index: 99;
+  margin-left: 2%;
+  margin-right: 2%;
   .logo {
     float: left;
+    font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
+      'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
     // background: #000;
     // background: url(../assets/logo.png) no-repeat 0 0;
     // background-size: 100%
@@ -148,6 +152,7 @@ export default {
       &:hover {
         color: #fff;
       }
+      padding-left: 20px;
     }
   }
 }

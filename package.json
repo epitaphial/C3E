@@ -1,7 +1,7 @@
 {
   "name": "cheetah_editor",
   "version": "0.0.1",
-  "author": "curled <2458457964@qq.com>",
+  "author": "curled <stega@qq.com>",
   "description": "a editor based on vue-electron",
   "license": null,
   "main": "./dist/electron/main.js",
@@ -62,13 +62,15 @@
     "less": "^3.11.3",
     "less-loader": "^6.1.0",
     "monaco-editor": "^0.20.0",
+    "monaco-editor-webpack-plugin": "^1.9.0",
     "vue": "^2.5.16",
     "vue-bus": "^1.2.1",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1",
     "vuex-electron": "^1.0.0",
-    "walk": "^2.3.14"
+    "walk": "^2.3.14",
+    "xterm": "^4.7.0"
   },
   "devDependencies": {
     "ajv": "^6.5.0",
