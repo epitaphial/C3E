@@ -173,3 +173,8 @@ ipcMain.on('not-first-time-save-file', (e, args) => {
 ipcMain.on('close-file-by-button', e => {
   e.sender.send('closeFileByButton')
 });
+
+// 切换选项卡，重新渲染monaco编辑器
+ipcMain.on('change-tab', (e, args) => {
+  e.sender.send('changeTab', args)
+});

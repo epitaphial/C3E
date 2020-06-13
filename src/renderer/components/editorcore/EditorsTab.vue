@@ -1,5 +1,5 @@
 <template>
-  <div id="edtab" style="padding: 0;margin-top: 25px;height: 100%">
+  <div style="padding: 0;margin: 0;height: 100%">
     <el-tabs
       @edit="handleTabsEdit"
       @tab-click="handleTabsClick"
@@ -16,7 +16,7 @@
         <MonacoEditor
           :filepath="item.path"
           :title="originName[item.name]"
-          style="padding: 0;margin: 0;height: 600px"
+          v-bind:style="{ height: theHeight + 'px' }"
         ></MonacoEditor>
       </el-tab-pane>
     </el-tabs>
@@ -32,6 +32,7 @@ export default {
   components: { MonacoEditor },
   data() {
     return {
+      theHeight: 300,
       editableTabsValue: null, // 当前选中的tab的name
       editableTabs: [], // 所有的tab对象数组，数组成员对象形式：{title: filename,name: newTabName,path: strpath}，说明：title（显示在tab上的内容），name（一个整数，标识tab的id），path（tab所属的文件的路径，如果是unname文件则为null）
       tabIndex: 0, // tab总数
@@ -41,6 +42,8 @@ export default {
     }
   },
   created() {
+    // 实时改变window大小以适应高度
+    window.addEventListener('resize', this.getHight)
     let _this = this
     // 信号1，来自MenuBar.vue的打开文件信号，信号名：selectedFile，接收参数：事件、文件路径
     ipcRenderer.on('selectedFile', function(event, path) {
@@ -165,7 +168,22 @@ export default {
       _this.handleTabsEdit(_this.editableTabsValue, 'remove')
     })
   },
+  updated() {
+    for (let index = 0; index < this.editableTabs.length; index++) {
+      if (this.editableTabs[index].name === this.editableTabsValue) {
+        let data = {
+          title: this.editableTabs[index].title,
+          path: this.editableTabs[index].path
+        }
+        ipcRenderer.send('change-tab', data)
+        break
+      }
+    }
+  },
   methods: {
+    getHight() {
+      this.theHeight = window.innerHeight - 250
+    },
     closeTabByName(_this, targetName) {
       let tabs = _this.editableTabs
       let activeName = _this.editableTabsValue // 当前选中的tab
@@ -207,6 +225,7 @@ export default {
     },
     handleTabsEdit(targetName, action) {
       if (action === 'add') {
+        this.getHight()
         let newTabName = ++this.tabIndex + ''
         let theTitle = 'unname' + this.unnameMount++
         this.editableTabs.push({

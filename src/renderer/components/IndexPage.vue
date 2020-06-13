@@ -1,12 +1,18 @@
 <template>
   <el-container id="wrapper">
-    <MenuBar></MenuBar>
+    <el-header height="40px">
+      <MenuBar></MenuBar>
+    </el-header>
     <el-container>
-      <FileMenuBar></FileMenuBar>
-      <hr />
-      <el-container width="80%">
-        <EditorsTab height="80%"></EditorsTab>
-        <el-footer height="20%">终端视图</el-footer>
+      <el-aside width="200px">
+        <FileMenuBar></FileMenuBar>
+      </el-aside>
+      <hr>
+      <el-container>
+        <el-main>
+          <EditorsTab height="80%"></EditorsTab>
+        </el-main>
+        <el-footer height="150px">终端视图</el-footer>
       </el-container>
     </el-container>
   </el-container>
@@ -46,17 +52,19 @@ div {
   bottom: 0;
 }
 
+.el-header,
 .el-footer {
   background-color: #b3c0d1;
   color: #333;
   text-align: center;
-  line-height: 50px;
+  line-height: 40px;
 }
 
 .el-aside {
-  background-color: #d3dce6;
-  color: #333;
   text-align: center;
-  line-height: 200px;
+}
+.el-main {
+  margin: 0%;
+  padding: 0%;
 }
 </style>

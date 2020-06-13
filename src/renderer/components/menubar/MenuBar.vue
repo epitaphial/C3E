@@ -1,5 +1,5 @@
 <template>
-  <el-header class="top-nav" height="30px">
+  <div class="top-nav">
     <div class="logo">
       <i class="el-icon-edit">乾天</i>
     </div>
@@ -59,7 +59,7 @@
         <i class="el-icon-circle-close"></i>
       </span>
     </div>
-  </el-header>
+  </div>
 </template>
 
 <script>
@@ -134,10 +134,7 @@ export default {
   right: 0;
   z-index: 99;
   .logo {
-    width: 48px;
-    height: 48px;
     float: left;
-    padding-top: 5px;
     // background: #000;
     // background: url(../assets/logo.png) no-repeat 0 0;
     // background-size: 100%
@@ -146,9 +143,7 @@ export default {
     -webkit-app-region: no-drag;
     float: right;
     color: #000;
-    margin-top: 8px;
     .tool-icon {
-      padding: 10px;
       cursor: pointer;
       &:hover {
         color: #fff;
@@ -161,7 +156,6 @@ export default {
   user-select: none;
   position: relative;
   float: left;
-  padding: 5px 0 0 20px;
 
   .el-dropdown-link {
     cursor: pointer;

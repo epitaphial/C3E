@@ -1,17 +1,16 @@
 <template>
-  <div style="padding: 0;margin-top: 40px;height: 100%;width: 20%;user-select: none;">
-    <el-scrollbar style="height:90%">
-      <el-tree
-        :data="data"
-        :default-expanded-keys="defaultExp"
-        :props="defaultProps"
-        @node-click="handleNodeClick"
-        @node-contextmenu="handleNodeRightClick"
-        highlight-current
-        node-key="id"
-        ref="filemenubar"
-      ></el-tree>
-    </el-scrollbar>
+<div style="padding: 0;height: 100%;user-select: none;">
+  <el-scrollbar style="height:100%">
+    <el-tree
+      :data="data"
+      :default-expanded-keys="defaultExp"
+      :props="defaultProps"
+      @node-click="handleNodeClick"
+      @node-contextmenu="handleNodeRightClick"
+      highlight-current
+      node-key="id"
+      ref="filemenubar"
+    ></el-tree>
     <div v-show="dirMenuVisible">
       <ul class="rightmenu" id="dirrightmenu">
         <li @click="RmDir" class="menu_item">删除文件夹(施工中)</li>
@@ -27,7 +26,8 @@
         <li @click="RmFile" class="menu_item">删除文件(施工中)</li>
       </ul>
     </div>
-  </div>
+  </el-scrollbar>
+</div>
 </template>
 
 <script>
@@ -331,7 +331,7 @@ export default {
 .rightmenu {
   width: 200px;
   z-index: 99999;
-  position: absolute;
+  position: fixed;
   border: 1px solid #999999;
   background-color: #f4f4f4;
 }

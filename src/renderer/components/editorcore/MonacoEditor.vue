@@ -1,13 +1,10 @@
 <template>
-  <div ref="main" style="width: 100%"></div>
+  <div id="editor-body" ref="main" style="height: 100%"></div>
 </template>
 
 <script>
-// import * as monaco from 'monaco-editor/esm/vs/editor/editor.main.js'
-// import bus from '../../common/bus.js'
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.main.js'
 import 'monaco-editor/esm/vs/basic-languages/monaco.contribution.js'
-import 'monaco-editor/esm/vs/editor/contrib/find/findController.js'
 import { getLanguageId, getFileNameFromPath } from '../../common/tools'
 
 let ipcRenderer = require('electron').ipcRenderer
@@ -56,7 +53,7 @@ export default {
       // 新建标签页的情况
       this.editor = monaco.editor.create(this.$refs['main'], {
         theme: this.curTheme,
-        automaticLayout: false,
+        automaticLayout: true,
         language: 'plaintext',
         value: this.value,
         fontSize: 20
@@ -71,7 +68,7 @@ export default {
       this.value = data
       this.editor = monaco.editor.create(this.$refs['main'], {
         theme: this.curTheme,
-        automaticLayout: false,
+        automaticLayout: true,
         language: languageId,
         value: this.value,
         fontSize: 20
@@ -108,10 +105,19 @@ export default {
         }
       }
     })
+    // 信号3，来自EditorsTab.vue的切换标签页事件，信号名：changeTab，接收参数：事件,{路径，文件名}
+    ipcRenderer.on('changeTab', (event, data) => {
+      if (data.path === this.path && data.title === this.title) {
+        this.editor.layout()
+      }
+    })
   }
 }
 </script>
 
 
 <style>
+#editor-body {
+  position: relative;
+}
 </style>  
