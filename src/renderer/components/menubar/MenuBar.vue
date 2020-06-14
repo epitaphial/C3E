@@ -1,7 +1,7 @@
 <template>
   <div class="top-nav">
     <div class="logo">
-      <i class="el-icon-edit">乾天</i>
+      乾天
     </div>
     <div class="mainmenu">
       <el-dropdown>
