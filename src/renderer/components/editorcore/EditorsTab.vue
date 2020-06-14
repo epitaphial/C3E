@@ -167,6 +167,20 @@ export default {
     ipcRenderer.on('closeFileByButton', function(event) {
       _this.handleTabsEdit(_this.editableTabsValue, 'remove')
     })
+    // 信号9，来自MenuBar.vue的文字复制、剪切、粘贴、获取编码事件，信号名：editorTextAction，接收参数：事件,事件类型
+    ipcRenderer.on('editorTextAction', function(event, data) {
+      let tabs = _this.editableTabs
+      for (let index = 0; index < tabs.length; index++) {
+        if (tabs[index].name === _this.editableTabsValue) {
+          ipcRenderer.send('editor-text-action-from-tab', {
+            action: data,
+            path: tabs[index].path,
+            title: _this.originName[tabs[index].name]
+          })
+          break
+        }
+      }
+    })
   },
   updated() {
     for (let index = 0; index < this.editableTabs.length; index++) {

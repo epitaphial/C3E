@@ -19,7 +19,8 @@ export default {
       path: this.filepath,
       editor: null,
       curTheme: 'vs-light',
-      value: ''
+      value: '',
+      encoding: ''
     }
   },
   methods: {},
@@ -44,6 +45,28 @@ export default {
         })
       }
     })
+    // 信号2，来自MenuBar.vue的保存信号，信号名：showFindBox，接收参数：无
+    ipcRenderer.on('showFindBox', () => {
+      this.editor.getAction('actions.find').run()
+    })
+    // 信号3，来自EditorsTab.vue的文字复制粘贴事件，信号名：editorTextActionFromTab，接收参数：事件,{路径，文件名}
+    ipcRenderer.on('editorTextActionFromTab', (event, data) => {
+      if (data.path === this.path && data.title === this.title) {
+        let action = data.action
+        if (action === 1) {
+          // 剪切
+          this.editor.getAction('editor.action.clipboardCutAction').run()
+        } else if (action === 2) {
+          // 复制
+          this.editor.getAction('editor.action.clipboardCopyAction').run()
+        } else if (action === 3) {
+          // 粘贴
+          this.editor.getAction('editor.action.clipboardPasteAction').run()
+        } else if (action === 4) {
+          alert(`当前文件的编码为：${this.encoding}`)
+        }
+      }
+    })
   },
   mounted() {
     // 每调用一次create，monaco.editor model 数量+1
@@ -64,6 +87,11 @@ export default {
       let suffix = filename.substring(index)
       let languageId = getLanguageId(this.theLanguageList, suffix, filename)
       let data = fs.readFileSync(this.path, 'utf8')
+      // 判断文件编码
+      let guessdata = fs.readFileSync(this.path)
+      let jschardet = require('jschardet')
+      this.encoding = jschardet.detect(guessdata).encoding
+
       this.value = data
       this.editor = monaco.editor.create(this.$refs['main'], {
         theme: this.curTheme,
@@ -110,6 +138,9 @@ export default {
         this.editor.layout()
       }
     })
+  },
+  beforeDestroy() {
+    ipcRenderer.removeAllListeners('editorTextActionFromTab')
   }
 }
 </script>

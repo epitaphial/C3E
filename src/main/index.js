@@ -178,3 +178,18 @@ ipcMain.on('close-file-by-button', e => {
 ipcMain.on('change-tab', (e, args) => {
   e.sender.send('changeTab', args)
 });
+
+// 打开查找框
+ipcMain.on('show-find-box', (e) => {
+  e.sender.send('showFindBox')
+});
+
+// 文字剪切（1）、复制（2）、粘贴（3）
+ipcMain.on('editor-text-action', (e, args) => {
+  e.sender.send('editorTextAction', args)
+});
+
+// 转发EditorsTab的文字剪切（1）、复制（2）、粘贴（3）
+ipcMain.on('editor-text-action-from-tab', (e, args) => {
+  e.sender.send('editorTextActionFromTab', args)
+});

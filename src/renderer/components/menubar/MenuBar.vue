@@ -20,7 +20,11 @@
       <el-dropdown>
         <span class="el-dropdown-link">编辑</span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>黄金糕</el-dropdown-item>
+          <el-dropdown-item @click.native="textCut">剪切(Ctrl+X)</el-dropdown-item>
+          <el-dropdown-item @click.native="textCopy">复制(Ctrl+C)</el-dropdown-item>
+          <el-dropdown-item @click.native="textPaste">粘贴(Ctrl+P)</el-dropdown-item>
+          <el-dropdown-item @click.native="showFindBox">查找(Ctrl+F)</el-dropdown-item>
+          <el-dropdown-item @click.native="getTextEncoding" divided>查看当前文件编码</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
       <el-dropdown>
@@ -32,13 +36,13 @@
       <el-dropdown>
         <span class="el-dropdown-link">终端</span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>黄金糕</el-dropdown-item>
+          <el-dropdown-item disabled>（施工中）</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
       <el-dropdown>
         <span class="el-dropdown-link">拓展</span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>黄金糕</el-dropdown-item>
+          <el-dropdown-item disabled>（施工中）</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
       <el-dropdown>
@@ -91,6 +95,21 @@ export default {
     },
     closeFile() {
       ipcRenderer.send('close-file-by-button')
+    },
+    showFindBox() {
+      ipcRenderer.send('show-find-box')
+    },
+    textCut() {
+      ipcRenderer.send('editor-text-action', 1)
+    },
+    textCopy() {
+      ipcRenderer.send('editor-text-action', 2)
+    },
+    textPaste() {
+      ipcRenderer.send('editor-text-action', 3)
+    },
+    getTextEncoding() {
+      ipcRenderer.send('editor-text-action', 4)
     }
   },
   mounted() {
@@ -117,13 +136,6 @@ export default {
 </script>
 
 <style lang="less">
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  user-select: none;
-}
-
 .top-nav {
   background: #b3c0d1;
   position: fixed;
