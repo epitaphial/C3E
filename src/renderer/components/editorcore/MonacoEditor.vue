@@ -126,7 +126,7 @@ export default {
         data = gbkData
       } else if (this.encoding === 'windows-1252') {
         const iconvLite = require('iconv-lite')
-        let gbkData = iconvLite.decode(guessdata, 'utf16')
+        let gbkData = iconvLite.decode(guessdata, 'utf8')
         data = gbkData
       }
 
