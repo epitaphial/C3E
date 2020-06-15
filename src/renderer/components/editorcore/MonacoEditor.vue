@@ -7,6 +7,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.main.js'
 import { getLanguageId, getFileNameFromPath } from '../../common/tools'
 
 let ipcRenderer = require('electron').ipcRenderer
+const iconvLite = require('iconv-lite')
 export default {
   name: 'monaco-editor',
   props: {
@@ -20,7 +21,7 @@ export default {
       editor: null,
       curTheme: 'vs-light',
       value: '',
-      encoding: ''
+      encoding: 'utf8'
     }
   },
   methods: {},
@@ -31,7 +32,7 @@ export default {
     ipcRenderer.on('saveFile', (event, data) => {
       this.value = this.editor.getValue()
       if (data.path !== undefined && data.thetitle === this.title) {
-        fs.writeFileSync(data.path, this.value, 'utf8') // 修改后的内容写入文件
+        fs.writeFileSync(data.path, this.value) // 修改后的内容写入文件
         this.path = data.path
         let filename = getFileNameFromPath(this.path)
         let index = filename.lastIndexOf('.')
@@ -49,7 +50,7 @@ export default {
     ipcRenderer.on('showFindBox', () => {
       this.editor.getAction('actions.find').run()
     })
-    // 信号3，来自EditorsTab.vue的文字复制粘贴事件，信号名：editorTextActionFromTab，接收参数：事件,{路径，文件名}
+    // 信号3，来自EditorsTab.vue的文字复制粘贴另存为事件，信号名：editorTextActionFromTab，接收参数：事件,{路径，文件名}
     ipcRenderer.on('editorTextActionFromTab', (event, data) => {
       if (data.path === this.path && data.title === this.title) {
         let action = data.action
@@ -64,6 +65,31 @@ export default {
           this.editor.getAction('editor.action.clipboardPasteAction').run()
         } else if (action === 4) {
           alert(`当前文件的编码为：${this.encoding}`)
+        } else if (action === 5 && data.path !== null) {
+          ipcRenderer.send('save-file-to-other', {
+            encoding: 'utf8',
+            path: data.path,
+            title: this.title
+          })
+        } else if (action === 6 && data.path !== null) {
+          ipcRenderer.send('save-file-to-other', {
+            // when gbk
+            encoding: 'gbk',
+            path: data.path,
+            title: this.title
+          })
+        }
+      }
+    })
+    // 信号4，来自MonacoEditor.vue的另存为信号，信号名：saveFileToOther，接收参数：事件、{文件路径,文件名}
+    ipcRenderer.on('saveFileToOther', (event, data) => {
+      this.value = this.editor.getValue()
+      if (data.path !== undefined && data.path === this.path) {
+        if (data.encoding === 'gbk') {
+          let gbkStr = iconvLite.encode(this.value, 'gbk');
+          fs.writeFileSync(data.file, gbkStr)
+        } else if (data.encoding === 'utf8') {
+          fs.writeFileSync(data.file, this.value)
         }
       }
     })
@@ -86,11 +112,23 @@ export default {
       let index = filename.lastIndexOf('.')
       let suffix = filename.substring(index)
       let languageId = getLanguageId(this.theLanguageList, suffix, filename)
-      let data = fs.readFileSync(this.path, 'utf8')
       // 判断文件编码
       let guessdata = fs.readFileSync(this.path)
       let jschardet = require('jschardet')
       this.encoding = jschardet.detect(guessdata).encoding
+      let data = fs.readFileSync(this.path, 'utf8')
+      if (this.encoding === 'GB2312') {
+        let gbkData = iconvLite.decode(guessdata, 'gbk')
+        data = gbkData
+      } else if (this.encoding === 'Big5') {
+        const iconvLite = require('iconv-lite')
+        let gbkData = iconvLite.decode(guessdata, 'big5')
+        data = gbkData
+      } else if (this.encoding === 'windows-1252') {
+        const iconvLite = require('iconv-lite')
+        let gbkData = iconvLite.decode(guessdata, 'utf16')
+        data = gbkData
+      }
 
       this.value = data
       this.editor = monaco.editor.create(this.$refs['main'], {
@@ -115,7 +153,7 @@ export default {
         ipcRenderer.send('save-file', this.title)
       } else {
         this.value = this.editor.getValue()
-        fs.writeFileSync(this.path, this.value, 'utf8') // 修改后的内容写入文件
+        fs.writeFileSync(this.path, this.value) // 修改后的内容写入文件
         ipcRenderer.send('not-first-time-save-file', this.path)
       }
     })
@@ -127,7 +165,7 @@ export default {
           ipcRenderer.send('save-file', this.title)
         } else {
           this.value = this.editor.getValue()
-          fs.writeFileSync(this.path, this.value, 'utf8') // 修改后的内容写入文件
+          fs.writeFileSync(this.path, this.value) // 修改后的内容写入文件
           ipcRenderer.send('not-first-time-save-file', this.path)
         }
       }
@@ -140,7 +178,6 @@ export default {
     })
   },
   beforeDestroy() {
-    ipcRenderer.removeAllListeners('editorTextActionFromTab')
   }
 }
 </script>

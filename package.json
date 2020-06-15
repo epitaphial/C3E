@@ -1,9 +1,9 @@
 {
   "name": "cheetah_editor",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": "curled <stega@qq.com>",
   "description": "a editor based on vue-electron",
-  "license": null,
+  "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node --max_old_space_size=4096 .electron-vue/build.js && electron-builder",
@@ -58,6 +58,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "element-ui": "^2.13.2",
+    "iconv-lite": "^0.6.0",
     "jquery": "^3.5.1",
     "jschardet": "^2.1.1",
     "less": "^3.11.3",

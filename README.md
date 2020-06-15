@@ -1,28 +1,49 @@
-# cheetah_editor
+# Cheetah
 
-> a editor based on vue-electron
+![author](https://img.shields.io/badge/author-Curled-blueviolet.svg?style=plastic)
+![license](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=plastic)
 
-#### Build Setup
+## DESCRIPTION
 
-``` bash
-# install dependencies
-npm install
+Cheetah是一个基于Electron-vue编写的跨平台编辑器，内核基于monaco开发。
 
-# serve with hot reload at localhost:9080
-npm run dev
+![screenshoot](./static/img/screenshoot.png)
 
-# build electron application for production
-npm run build
+## HOW TO USE
 
-# run unit & end-to-end tests
-npm test
+### Windows平台
 
+您可以直接从release下载编译好的二进制文件运行。如果要从源码安装，请进行以下步骤：
 
-# lint all JS/Vue component files in `src/`
-npm run lint
-
+```bash
+git clone https://github.com/liupuchun/C3E.git
+cd C3E
+#安装node9以上版本，安装对应版本的yarn或npm
+yarn(npm install)
+yarn build(npm build)
 ```
 
----
+如果提示sqlite安装失败，请安装[tdm-gcc](http://tdm-gcc.tdragon.net/download)或其他gcc环境。
 
-This project was generated with [electron-vue](https://github.com/SimulatedGREG/electron-vue)@[45a3e22](https://github.com/SimulatedGREG/electron-vue/tree/45a3e224e7bb8fc71909021ccfdcfec0f461f634) using [vue-cli](https://github.com/vuejs/vue-cli). Documentation about the original structure can be found [here](https://simulatedgreg.gitbooks.io/electron-vue/content/index.html).
+### Linux平台
+
+您可以直接从release下载编译好的二进制文件运行。如果要从源码安装，请进行以下步骤：
+
+```bash
+git clone https://github.com/liupuchun/C3E.git
+cd C3E
+#debian/fedora/centos
+apt-get install nodejs / dnf install nodejs / yum install nodejs
+apt-get install yarn / dnf install yarn / yum install yarn
+yarn(npm install)
+yarn build(npm build)
+```
+
+## TODO
+
+- [x] 文件打开、文件夹打开、关闭
+- [x] 编辑器复制、粘贴、剪切、查找；
+- [x] 根据拓展名自动应用60种高亮方案，js、html、css、ts自动补全
+- [x] 编码识别与自动转换
+- [ ] 终端实现
+- [ ] 拓展插件

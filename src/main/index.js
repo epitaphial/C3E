@@ -20,10 +20,15 @@ function createWindow() {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 563,
+    height: 720,
     useContentSize: true,
-    width: 1000,
-    frame: false
+    width: 900,
+    frame: false,
+    show: false
+  })
+
+  mainWindow.on('ready-to-show', function() {
+    mainWindow.show()
   })
 
   mainWindow.loadURL(winURL)
@@ -184,12 +189,25 @@ ipcMain.on('show-find-box', (e) => {
   e.sender.send('showFindBox')
 });
 
-// 文字剪切（1）、复制（2）、粘贴（3）
+// 来自MenuBar的文字剪切（1）、复制（2）、粘贴（3）、获取编码（4）、另存为（5）、另存为GBK（6）
 ipcMain.on('editor-text-action', (e, args) => {
   e.sender.send('editorTextAction', args)
 });
 
-// 转发EditorsTab的文字剪切（1）、复制（2）、粘贴（3）
+// 转发EditorsTab的文字剪切（1）、复制（2）、粘贴（3）、获取编码（4）、另存为（5）、另存为GBK（6）
 ipcMain.on('editor-text-action-from-tab', (e, args) => {
   e.sender.send('editorTextActionFromTab', args)
+});
+
+// 另存为utf8、gbk
+ipcMain.on('save-file-to-other', (e, args) => {
+  dialog.showSaveDialog({
+    title: '另存为',
+    filters: [
+      { name: 'All', extensions: ['*'] }
+    ]
+  }, file => {
+    args.file = file
+    e.sender.send('saveFileToOther', args)
+  })
 });

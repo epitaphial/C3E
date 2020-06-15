@@ -1,8 +1,6 @@
 <template>
   <div class="top-nav">
-    <div class="logo">
-      乾天
-    </div>
+    <div class="logo">乾天</div>
     <div class="mainmenu">
       <el-dropdown>
         <span class="el-dropdown-link">文件</span>
@@ -12,7 +10,8 @@
           <el-dropdown-item @click.native="openFileDialog" divided>打开文件</el-dropdown-item>
           <el-dropdown-item @click.native="openDirDialog">打开文件夹</el-dropdown-item>
           <el-dropdown-item @click.native="saveFile" divided>保存</el-dropdown-item>
-          <el-dropdown-item @click.native="saveFileToOther" disabled>另存为</el-dropdown-item>
+          <el-dropdown-item @click.native="saveFileToOther">另存为</el-dropdown-item>
+          <el-dropdown-item @click.native="saveFileToGBK">另存为GBK</el-dropdown-item>
           <el-dropdown-item @click.native="closeFile" divided>关闭文件</el-dropdown-item>
           <el-dropdown-item @click.native="closeWindow">退出</el-dropdown-item>
         </el-dropdown-menu>
@@ -30,25 +29,27 @@
       <el-dropdown>
         <span class="el-dropdown-link">视图</span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>黄金糕</el-dropdown-item>
+          <el-dropdown-item v-if="fileMenuVisiable" disabled>隐藏文件目录</el-dropdown-item>
+          <el-dropdown-item v-else disabled>显示文件目录</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
       <el-dropdown>
         <span class="el-dropdown-link">终端</span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item disabled>（施工中）</el-dropdown-item>
+          <el-dropdown-item v-if="terminalVisiable" disabled>隐藏终端</el-dropdown-item>
+          <el-dropdown-item v-else disabled>显示终端</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
       <el-dropdown>
         <span class="el-dropdown-link">拓展</span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item disabled>（施工中）</el-dropdown-item>
+          <el-dropdown-item disabled>管理拓展</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
       <el-dropdown>
         <span class="el-dropdown-link">帮助</span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>黄金糕</el-dropdown-item>
+          <el-dropdown-item @click.native="openGithub">项目地址</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -74,9 +75,18 @@ let isBig = true // 窗口放大还原标示
 export default {
   name: 'menu-bar',
   components: {},
+  data() {
+    return {
+      fileMenuVisiable: true, // 文件菜单可见性（默认可见）
+      terminalVisiable: false // 终端菜单可见性（默认不可见）
+    }
+  },
   methods: {
     open(link) {
       this.$electron.shell.openExternal(link)
+    },
+    openGithub() {
+      this.$electron.shell.openExternal('https://github.com/liupuchun/C3E')
     },
     openFileDialog() {
       ipcRenderer.send('open-file-dialog')
@@ -110,6 +120,12 @@ export default {
     },
     getTextEncoding() {
       ipcRenderer.send('editor-text-action', 4)
+    },
+    saveFileToOther() {
+      ipcRenderer.send('editor-text-action', 5)
+    },
+    saveFileToGBK() {
+      ipcRenderer.send('editor-text-action', 6)
     }
   },
   mounted() {

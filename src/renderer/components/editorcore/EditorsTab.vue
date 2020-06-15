@@ -167,7 +167,7 @@ export default {
     ipcRenderer.on('closeFileByButton', function(event) {
       _this.handleTabsEdit(_this.editableTabsValue, 'remove')
     })
-    // 信号9，来自MenuBar.vue的文字复制、剪切、粘贴、获取编码事件，信号名：editorTextAction，接收参数：事件,事件类型
+    // 信号9，来自MenuBar.vue的文字复制、剪切、粘贴、获取编码、另存为事件，信号名：editorTextAction，接收参数：事件,事件类型
     ipcRenderer.on('editorTextAction', function(event, data) {
       let tabs = _this.editableTabs
       for (let index = 0; index < tabs.length; index++) {
