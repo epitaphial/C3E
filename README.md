@@ -23,8 +23,6 @@ yarn(npm install)
 yarn build(npm build)
 ```
 
-如果提示sqlite安装失败，请安装[tdm-gcc](http://tdm-gcc.tdragon.net/download)或其他gcc环境。
-
 ### Linux平台
 
 您可以直接从release下载编译好的二进制文件运行。如果要从源码安装，请进行以下步骤：
